@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dap-Uppity</title>
+<link rel="icon" type="image/png" href="logo.png">
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial Black', 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  body {
+    background: #FFF8E1;
+    padding: 12px;
+    min-height: 100vh;
+    transition: background 0.3s;
+    position: relative;
+  }
+  body.dark {
+    background: #1A1A1A;
+  }
+
+  /* === ХЕДЕР === */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+  header img {
+    height: 60px;
+    width: auto;
+    display: block;
+  }
+  .header-buttons {
+    display: flex;
+    gap: 6px;
+  }
+  .header-btn {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    font-size: 22px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* === ПЕРЕКЛЮЧАТЕЛЬ === */
+  .switcher {
+    background: #E8E8E8;
+    border-radius: 26px;
+    height: 52px;
+    display: flex;
+    position: relative;
+    margin-bottom: 12px;
+    transition: background 0.3s;
+  }
+  body.dark .switcher {
+    background: #333;
+  }
+  .indicator {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    height: 44px;
+    background: white;
+    border-radius: 22px;
+    transition: transform 0.25s ease, background 0.3s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  body.dark .indicator {
+    background: #555;
+  }
+  .switcher.right .indicator {
+    transform: translateX(100%);
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    font-size: 14px;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s;
+  }
+  .tab.active {
+    color: #1A1A1A;
+  }
+  body.dark .tab.active {
+    color: #FFFFFF;
+  }
+
+  /* === СТАТИСТИКА СВЕРХУ === */
+  .stats {
+    margin-bottom: 12px;
+  }
+  .counter {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 6px;
+    transition: color 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  body.dark .counter {
+    color: #EEEEEE;
+  }
+  .streak {
+    background: #FFF3E0;
+    border: 2px solid #FF9800;
+    color: #FF6D00;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    transition: background 0.3s;
+  }
+  body.dark .streak {
+    background: #3D2D1F;
+  }
+  .progress-track {
+    width: 100%;
+    height: 8px;
+    background: #E0E0E0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  body.dark .progress-track {
+    background: #333;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #4CAF50;
+    border-radius: 8px;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  /* === КОЛОНКИ === */
+  .columns {
+    display: flex;
+    gap: 8px;
+  }
+  .column {
+    flex: 1;
+    padding: 8px;
+    border-radius: 16px;
+    min-height: 400px;
+    transition: background 0.3s;
+  }
+  .column-left {
+    background: #FFE0B2;
+  }
+  body.dark .column-left {
+    background: #2D2D2D;
+  }
+  .column-right {
+    background: #C8E6C9;
+  }
+  body.dark .column-right {
+    background: #1F3D2A;
+  }
+  .column-title {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-align: center;
+    color: #5D4037;
+    transition: color 0.3s;
+  }
+  body.dark .column-title {
+    color: #E0E0E0;
+  }
+  .column-right .column-title {
+    color: #2E7D32;
+  }
+  body.dark .column-right .column-title {
+    color: #A5D6A7;
+  }
+
+  /* === КАРТОЧКИ === */
+  .guy {
+    background: white;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    transition: transform 0.15s, background 0.3s, color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  body.dark .guy {
+    background: #3D3D3D;
+    color: #EEEEEE;
+  }
+  .guy:active {
+    transform: scale(0.97);
+  }
+  .guy.pressing {
+    background: #FFCDD2;
+  }
+  body.dark .guy.pressing {
+    background: #5D3D3D;
+  }
+  .guy.pressing::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: #F44336;
+    animation: longPress 0.5s linear forwards;
+  }
+  @keyframes longPress {
+    from { width: 0%; }
+    to { width: 100%; }
+  }
+
+  .empty {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    padding: 24px 8px;
+    font-weight: normal;
+    transition: color 0.3s;
+  }
+  body.dark .empty {
+    color: #AAA;
+  }
+
+  /* === МОДАЛЬНЫЕ ОКНА === */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .modal-overlay.show {
+    display: flex;
+  }
+  .modal {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  body.dark .modal {
+    background: #2D2D2D;
+  }
+  .modal h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #333;
+    word-break: break-word;
+  }
+  body.dark .modal h2 {
+    color: #EEEEEE;
+  }
+  .modal p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 16px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: normal;
+  }
+  body.dark .modal p {
+    color: #BBB;
+  }
+  .modal input {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+    margin-bottom: 16px;
+  }
+  body.dark .modal input {
+    background: #1A1A1A;
+    color: #EEEEEE;
+    border-color: #444;
+  }
+  .modal input:focus {
+    border-color: #8B5CF6;
+  }
+  .modal-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  .modal-buttons button {
+    flex: 1;
+    padding: 12px;
+    font-size: 15px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    transition: transform 0.15s;
+  }
+  .modal-buttons button:active {
+    transform: scale(0.97);
+  }
+  .btn-cancel {
+    background: #E0E0E0;
+    color: #333;
+  }
+  body.dark .btn-cancel {
+    background: #444;
+    color: #EEEEEE;
+  }
+  .btn-confirm {
+    background: #8B5CF6;
+    color: white;
+  }
+  .btn-delete {
+    background: #F44336;
+    color: white;
+  }
+
+  /* === ГИФКА === */
+  .gif-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .gif-overlay.show {
+    display: flex;
+  }
+  .gif-overlay img {
+    width: 300px;
+    height: 300px;
+    object-fit: contain;
+  }
+  .gif-fallback {
+    font-size: 200px;
+    animation: shake 0.5s;
+  }
+  @keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+  }
+
+  /* === ЭКРАН СТАТИСТИКИ === */
+  .screen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #FFF8E1;
+    z-index: 50;
+    overflow-y: auto;
+    padding: 20px;
+    transition: background 0.3s;
+  }
+  body.dark .screen {
+    background: #1A1A1A;
+  }
+  .screen.show {
+    display: block;
+  }
+  .screen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .screen-title {
+    font-size: 20px;
+    color: #333;
+    transition: color 0.3s;
+  }
+  body.dark .screen-title {
+    color: #EEEEEE;
+  }
+  .btn-back {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.15s;
+  }
+  .btn-back:active {
+    transform: scale(0.95);
+  }
+  .big-streak {
+    background: #FFF3E0;
+    border: 3px solid #FF9800;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 24px;
+    transition: background 0.3s;
+  }
+  body.dark .big-streak {
+    background: #3D2D1F;
+  }
+  .big-streak .num {
+    font-size: 42px;
+    color: #FF6D00;
+    line-height: 1;
+  }
+  .big-streak .label {
+    font-size: 14px;
+    color: #FF6D00;
+    margin-top: 6px;
+  }
+  .section-title {
+    font-size: 14px;
+    color: #5D4037;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    transition: color 0.3s;
+  }
+  body.dark .section-title {
+    color: #E0E0E0;
+  }
+  .stat-row {
+    background: white;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 8px;
+    transition: background 0.3s;
+  }
+  body.dark .stat-row {
+    background: #2D2D2D;
+  }
+  .stat-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .stat-name {
+    font-size: 15px;
+    color: #333;
+    transition: color 0.3s;
+  }
+  body.dark .stat-name {
+    color: #EEEEEE;
+  }
+  .stat-count {
+    font-size: 13px;
+    color: #FF6D00;
+    font-weight: bold;
+  }
+  .stat-bar-track {
+    width: 100%;
+    height: 10px;
+    background: #E0E0E0;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  body.dark .stat-bar-track {
+    background: #444;
+  }
+  .stat-bar-fill {
+    height: 100%;
+    background: #FF9800;
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
+  .stat-empty {
+    text-align: center;
+    color: #888;
+    padding: 20px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: normal;
+    font-size: 14px;
+  }
+  body.dark .stat-empty {
+    color: #AAA;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="logo.png" alt="Dap-Uppity">
+  <div class="header-buttons">
+    <button class="header-btn" id="btnStats">📊</button>
+    <button class="header-btn" id="btnAdd">+</button>
+  </div>
+</header>
+
+<div class="switcher" id="switcher">
+  <div class="indicator"></div>
+  <div class="tab active" id="tabGreet" onclick="setMode('GREET')">🤝 Здороваться</div>
+  <div class="tab" id="tabFarewell" onclick="setMode('FAREWELL')">👋 Прощаться</div>
+</div>
+
+<div class="stats">
+  <div class="counter">
+    <span id="counterText">Поздоровался: 0 / 0</span>
+    <span class="streak" id="streak">🔥 0 дней</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</div>
+
+<div class="columns">
+  <div class="column column-left">
+    <div class="column-title" id="titleLeft">ЕЩЁ НЕ ПОЗДОРОВАЛСЯ</div>
+    <div id="listPending"></div>
+  </div>
+  <div class="column column-right">
+    <div class="column-title" id="titleRight">✅ ПОЗДОРОВАЛСЯ</div>
+    <div id="listDone"></div>
+  </div>
+</div>
+
+<!-- ЭКРАН СТАТИСТИКИ -->
+<div class="screen" id="statsScreen">
+  <div class="screen-header">
+    <div class="screen-title">📊 СТАТИСТИКА</div>
+    <button class="btn-back" onclick="closeStats()">✕</button>
+  </div>
+
+  <div class="big-streak">
+    <div class="num" id="statsStreakNum">0</div>
+    <div class="label" id="statsStreakLabel">🔥 дней подряд</div>
+  </div>
+
+  <div class="section-title">🏆 С КЕМ ЧАЩЕ ВСЕГО ЗДОРОВАЛСЯ</div>
+  <div id="topGuysList"></div>
+
+  <div class="section-title">📅 ИСТОРИЯ ЗА НЕДЕЛЮ</div>
+  <div id="weekHistory"></div>
+</div>
+
+<!-- Модалка: добавить -->
+<div class="modal-overlay" id="modalAdd">
+  <div class="modal">
+    <h2>Добавить кента</h2>
+    <input type="text" id="nameInput" placeholder="Имя кента" autocomplete="off">
+    <div class="modal-buttons">
+      <button class="btn-cancel" onclick="closeModal('modalAdd')">Отмена</button>
+      <button class="btn-confirm" onclick="confirmAdd()">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка: удалить -->
+<div class="modal-overlay" id="modalDelete">
+  <div class="modal">
+    <h2 id="deleteName">Удалить?</h2>
+    <p>Это уберёт его из списка и обнулит статистику.</p>
+    <div class="modal-buttons">
+      <button class="btn-cancel" onclick="closeModal('modalDelete')">Отмена</button>
+      <button class="btn-delete" onclick="confirmDelete()">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Гифка -->
+<div class="gif-overlay" id="gifOverlay" onclick="hideGif()">
+  <div id="gifContent"></div>
+</div>
+
+<script>
+  // === Данные ===
+  let guys = JSON.parse(localStorage.getItem('guys') || '[]');
+  let greeted = JSON.parse(localStorage.getItem('greeted') || '[]');
+  let farewell = JSON.parse(localStorage.getItem('farewell') || '[]');
+  let mode = localStorage.getItem('mode') || 'GREET';
+  let guyStats = JSON.parse(localStorage.getItem('guyStats') || '{}');
+  let history = JSON.parse(localStorage.getItem('history') || '{}');
+
+  let deleteTarget = null;
+  let pressTimer = null;
+  let longPressTriggered = false;
+
+  // === Сохранение ===
+  function save() {
+    localStorage.setItem('guys', JSON.stringify(guys));
+    localStorage.setItem('greeted', JSON.stringify(greeted));
+    localStorage.setItem('farewell', JSON.stringify(farewell));
+    localStorage.setItem('mode', mode);
+    localStorage.setItem('guyStats', JSON.stringify(guyStats));
+    localStorage.setItem('history', JSON.stringify(history));
+  }
+
+  function setMode(newMode) {
+    if (mode === newMode) return;
+    if (newMode === 'GREET') farewell = [];
+    else greeted = [];
+    mode = newMode;
+    save();
+    render();
+  }
+
+  // === Отрисовка ===
+  function render() {
+    const isGreet = mode === 'GREET';
+    const doneSet = isGreet ? greeted : farewell;
+
+    const pending = guys.filter(g => !doneSet.includes(g));
+    const done = guys.filter(g => doneSet.includes(g));
+
+    document.body.classList.toggle('dark', !isGreet);
+    document.getElementById('switcher').classList.toggle('right', !isGreet);
+    document.getElementById('tabGreet').classList.toggle('active', isGreet);
+    document.getElementById('tabFarewell').classList.toggle('active', !isGreet);
+
+    document.getElementById('titleLeft').textContent =
+      isGreet ? 'ЕЩЁ НЕ ПОЗДОРОВАЛСЯ' : 'ЕЩЁ НЕ ПОПРОЩАЛСЯ';
+    document.getElementById('titleRight').textContent =
+      isGreet ? '✅ ПОЗДОРОВАЛСЯ' : '✅ ПОПРОЩАЛСЯ';
+
+    const listPending = document.getElementById('listPending');
+    if (pending.length === 0) {
+      listPending.innerHTML = guys.length === 0
+        ? '<div class="empty">👆 + чтобы добавить кента</div>'
+        : '<div class="empty">Всех отметил🤝</div>';
+    } else {
+      listPending.innerHTML = pending.map(name => renderGuy(name, true)).join('');
+    }
+
+    const listDone = document.getElementById('listDone');
+    if (done.length === 0) {
+      listDone.innerHTML = '<div class="empty">Пока никого</div>';
+    } else {
+      listDone.innerHTML = done.map(name => renderGuy(name, false)).join('');
+    }
+
+    document.getElementById('counterText').textContent = isGreet
+      ? `Поздоровался: ${done.length} / ${guys.length}`
+      : `Попрощался: ${done.length} / ${guys.length}`;
+
+    const percent = guys.length > 0 ? (done.length / guys.length) * 100 : 0;
+    document.getElementById('progressFill').style.width = percent + '%';
+
+    const streak = calculateStreak();
+    document.getElementById('streak').textContent = `🔥 ${streak} ${dayWord(streak)}`;
+
+    document.querySelectorAll('.guy').forEach(el => {
+      attachHandlers(el, el.dataset.name, el.dataset.todone === 'true');
+    });
+  }
+
+  function renderGuy(name, isPending) {
+    return `<div class="guy" data-name="${escapeHtml(name)}" data-todone="${isPending}">${escapeHtml(name)}</div>`;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  // === Обработчики тапа и долгого нажатия ===
+  function attachHandlers(el, name, toDone) {
+    longPressTriggered = false;
+
+    const startPress = () => {
+      longPressTriggered = false;
+      el.classList.add('pressing');
+      pressTimer = setTimeout(() => {
+        longPressTriggered = true;
+        el.classList.remove('pressing');
+        openDeleteModal(name);
+      }, 500);
+    };
+
+    const cancelPress = () => {
+      el.classList.remove('pressing');
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+    };
+
+    el.addEventListener('click', () => {
+      if (longPressTriggered) {
+        longPressTriggered = false;
+        return;
+      }
+      moveGuy(name, toDone);
+    });
+
+    el.addEventListener('mousedown', startPress);
+    el.addEventListener('mouseup', cancelPress);
+    el.addEventListener('mouseleave', cancelPress);
+
+    el.addEventListener('touchstart', startPress, { passive: true });
+    el.addEventListener('touchend', cancelPress);
+    el.addEventListener('touchcancel', cancelPress);
+    el.addEventListener('touchmove', cancelPress);
+  }
+
+  function moveGuy(name, toDone) {
+    const isGreet = mode === 'GREET';
+
+    if (isGreet) {
+      if (toDone) {
+        if (!greeted.includes(name)) greeted.push(name);
+      } else {
+        greeted = greeted.filter(g => g !== name);
+      }
+    } else {
+      if (toDone) {
+        if (!farewell.includes(name)) farewell.push(name);
+      } else {
+        farewell = farewell.filter(g => g !== name);
+      }
+    }
+
+    // Инкремент статистики — только при переносе вправо и только в режиме "Здороваться"
+    if (toDone && isGreet) {
+      guyStats[name] = (guyStats[name] || 0) + 1;
+    }
+
+    // Запись в историю если сегодня всё 100%
+    const doneCount = isGreet ? greeted.length : farewell.length;
+    if (doneCount === guys.length && guys.length > 0) {
+      const today = new Date().toISOString().split('T')[0];
+      history[today] = { total: guys.length, greeted: doneCount };
+    }
+
+    save();
+    render();
+
+    if (toDone) {
+      showGif();
+      if (isGreet && greeted.length === guys.length && guys.length > 0) {
+        setTimeout(showCelebration, 500);
+      }
+    }
+  }
+
+  function showGif() {
+    const content = document.getElementById('gifContent');
+    const img = new Image();
+    img.onload = () => {
+      content.innerHTML = '<img src="handshake.gif" alt="handshake">';
+      document.getElementById('gifOverlay').classList.add('show');
+      setTimeout(hideGif, 2500);
+    };
+    img.onerror = () => {
+      content.innerHTML = '<div class="gif-fallback">🤝</div>';
+      document.getElementById('gifOverlay').classList.add('show');
+      setTimeout(hideGif, 1200);
+    };
+    img.src = 'handshake.gif';
+  }
+
+  function hideGif() {
+    document.getElementById('gifOverlay').classList.remove('show');
+  }
+
+  function showCelebration() {
+    document.getElementById('counterText').textContent = '🤝 ВСЕ ПОЗДОРОВАЛИСЬ! ЧЁТКО!';
+    setTimeout(render, 3000);
+  }
+
+  // === Модалки ===
+  function openModal(id) {
+    document.getElementById(id).classList.add('show');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+    if (id === 'modalAdd') {
+      document.getElementById('nameInput').value = '';
+    }
+  }
+
+  function confirmAdd() {
+    const input = document.getElementById('nameInput');
+    const name = input.value.trim();
+    if (!name) return;
+    if (guys.includes(name)) {
+      alert('Такой уже есть');
+      return;
+    }
+    guys.push(name);
+    save();
+    render();
+    closeModal('modalAdd');
+  }
+
+  function openDeleteModal(name) {
+    deleteTarget = name;
+    document.getElementById('deleteName').textContent = `Удалить "${name}"?`;
+    openModal('modalDelete');
+  }
+
+  function confirmDelete() {
+    if (!deleteTarget) return;
+    guys = guys.filter(g => g !== deleteTarget);
+    greeted = greeted.filter(g => g !== deleteTarget);
+    farewell = farewell.filter(g => g !== deleteTarget);
+    delete guyStats[deleteTarget];
+    deleteTarget = null;
+    save();
+    render();
+    closeModal('modalDelete');
+  }
+
+  // === Статистика ===
+  function openStats() {
+    const streak = calculateStreak();
+    document.getElementById('statsStreakNum').textContent = streak;
+    document.getElementById('statsStreakLabel').textContent = `🔥 ${dayWord(streak)} подряд`;
+
+    // Топ кентов
+    const topList = document.getElementById('topGuysList');
+    const entries = Object.entries(guyStats)
+      .filter(([name]) => guys.includes(name)) // только существующие
+      .sort((a, b) => b[1] - a[1]);
+
+    if (entries.length === 0) {
+      topList.innerHTML = '<div class="stat-empty">Пока ни с кем не здоровался 🤷</div>';
+    } else {
+      const maxCount = entries[0][1];
+      topList.innerHTML = entries.slice(0, 10).map(([name, count], i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+        const percent = maxCount > 0 ? (count / maxCount) * 100 : 0;
+        return `
+          <div class="stat-row">
+            <div class="stat-row-top">
+              <span class="stat-name">${medal} ${escapeHtml(name)}</span>
+              <span class="stat-count">${count} ${timesWord(count)}</span>
+            </div>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill" style="width: ${percent}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // История за неделю
+    const weekList = document.getElementById('weekHistory');
+    const last7 = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const iso = d.toISOString().split('T')[0];
+      const record = history[iso];
+      const total = record ? record.total : guys.length;
+      const greetedCount = record ? record.greeted : 0;
+
+      const dateLabel = i === 0 ? 'Сегодня' : i === 1 ? 'Вчера' : formatDate(d);
+
+      last7.push({
+        label: dateLabel,
+        total: total,
+        count: greetedCount
+      });
+    }
+
+    if (last7.every(d => d.count === 0 && !d.total)) {
+      weekList.innerHTML = '<div class="stat-empty">История пока пуста</div>';
+    } else {
+      weekList.innerHTML = last7.map(d => {
+        const isPerfect = d.total > 0 && d.count >= d.total;
+        const color = isPerfect ? '#4CAF50' : '#FF9800';
+        return `
+          <div class="stat-row">
+            <div class="stat-row-top">
+              <span class="stat-name">${d.label}</span>
+              <span class="stat-count" style="color: ${color};">${d.count} / ${d.total}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('statsScreen').classList.add('show');
+  }
+
+  function closeStats() {
+    document.getElementById('statsScreen').classList.remove('show');
+  }
+
+  function formatDate(d) {
+    const months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+    return `${d.getDate()} ${months[d.getMonth()]}`;
+  }
+
+  // === Стрик ===
+  function calculateStreak() {
+    const today = new Date();
+    let streak = 0;
+    let checkDate = new Date(today);
+
+    // Проверяем сегодня и вперёд по дням
+    for (let i = 0; i < 365; i++) {
+      const iso = checkDate.toISOString().split('T')[0];
+      const record = history[iso];
+      const isPerfect = record && record.total > 0 && record.greeted >= record.total;
+
+      if (isPerfect) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else if (i === 0) {
+        // Сегодня ещё не 100% — пропускаем, начинаем со вчера
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
+
+  function dayWord(n) {
+    if (n % 10 === 1 && n % 100 !== 11) return 'день';
+    if ([2,3,4].includes(n % 10) && ![12,13,14].includes(n % 100)) return 'дня';
+    return 'дней';
+  }
+
+  function timesWord(n) {
+    if (n % 10 === 1 && n % 100 !== 11) return 'раз';
+    if ([2,3,4].includes(n % 10) && ![12,13,14].includes(n % 100)) return 'раза';
+    return 'раз';
+  }
+
+  // === Обработчики ===
+  document.getElementById('btnAdd').onclick = () => openModal('modalAdd');
+  document.getElementById('btnStats').onclick = openStats;
+
+  document.getElementById('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmAdd();
+    if (e.key === 'Escape') closeModal('modalAdd');
+  });
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) closeModal(overlay.id);
+    });
+  });
+
+  // === Старт ===
+  render();
+</script>
+
+</body>
+</html>
