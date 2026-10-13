@@ -947,4 +947,115 @@
     if (entries.length === 0) {
       topList.innerHTML = '<div class="stat-empty">Пока ни с кем не здоровался 🤷</div>';
     } else {
-      const maxCount = entries[0][
+      const maxCount = entries[0][1];
+      topList.innerHTML = entries.slice(0, 10).map(([name, count], i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+        const percent = maxCount > 0 ? (count / maxCount) * 100 : 0;
+        return `
+          <div class="stat-row">
+            <div class="stat-row-top">
+              <span class="stat-name">${medal} ${escapeHtml(name)}</span>
+              <span class="stat-count">${count} ${timesWord(count)}</span>
+            </div>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill" style="width: ${percent}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    const weekList = document.getElementById('weekHistory');
+    const last7 = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const iso = d.toISOString().split('T')[0];
+      const record = history[iso];
+      const total = record ? record.total : guys.length;
+      const greetedCount = record ? record.greeted : 0;
+      const dateLabel = i === 0 ? 'Сегодня' : i === 1 ? 'Вчера' : formatDate(d);
+      last7.push({ label: dateLabel, total, count: greetedCount });
+    }
+
+    weekList.innerHTML = last7.map(d => {
+      const isPerfect = d.total > 0 && d.count >= d.total;
+      const color = isPerfect ? '#4CAF50' : '#F59E0B';
+      return `
+        <div class="stat-row">
+          <div class="stat-row-top">
+            <span class="stat-name">${d.label}</span>
+            <span class="stat-count" style="color: ${color};">${d.count} / ${d.total}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('statsScreen').classList.add('show');
+  }
+
+  function closeStats() {
+    document.getElementById('statsScreen').classList.remove('show');
+  }
+
+  function formatDate(d) {
+    const months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+    return `${d.getDate()} ${months[d.getMonth()]}`;
+  }
+
+  // === Стрик ===
+  function calculateStreak() {
+    const today = new Date();
+    let streak = 0;
+    let checkDate = new Date(today);
+
+    for (let i = 0; i < 365; i++) {
+      const iso = checkDate.toISOString().split('T')[0];
+      const record = history[iso];
+      const isPerfect = record && record.total > 0 && record.greeted >= record.total;
+
+      if (isPerfect) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else if (i === 0) {
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  function dayWord(n) {
+    if (n % 10 === 1 && n % 100 !== 11) return 'день';
+    if ([2,3,4].includes(n % 10) && ![12,13,14].includes(n % 100)) return 'дня';
+    return 'дней';
+  }
+
+  function timesWord(n) {
+    if (n % 10 === 1 && n % 100 !== 11) return 'раз';
+    if ([2,3,4].includes(n % 10) && ![12,13,14].includes(n % 100)) return 'раза';
+    return 'раз';
+  }
+
+  // === Обработчики ===
+  document.getElementById('btnAdd').onclick = () => openModal('modalAdd');
+  document.getElementById('btnStats').onclick = openStats;
+
+  document.getElementById('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmAdd();
+    if (e.key === 'Escape') closeModal('modalAdd');
+  });
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) closeModal(overlay.id);
+    });
+  });
+
+  // === Старт ===
+  render();
+</script>
+
+</body>
+</html>
